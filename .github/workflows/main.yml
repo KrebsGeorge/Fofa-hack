@@ -1,0 +1,24 @@
+name: Build Android
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+
+    - name: Download and setup NDK
+      uses: android-actions/setup-ndk@v1
+      with:
+        ndk-version: '21.4.7075529'
+
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
