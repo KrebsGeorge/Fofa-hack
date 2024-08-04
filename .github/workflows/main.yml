@@ -1,30 +1,18 @@
-name: Build Android
+name: Setup Android SDK
 
 on: [push]
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install JDK
-      uses: actions/setup-java@v3
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
       with:
-        java-version: '11'
-
-    - name: Install Android SDK
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget unzip
-        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-        unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
-        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-30" "ndk;23.1.7779620"
-        export ANDROID_HOME=$HOME/android-sdk
-        export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator
-
-    - name: Build with Gradle
-      run: ./gradlew assembleDebug
+        distribution: 'sdk'  # This parameter might be required
+        sdk-version: '30.0.3'
+        ndk-version: '23.1.7779620'
