@@ -10,15 +10,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up JDK
+    - name: Install JDK
       uses: actions/setup-java@v3
       with:
         java-version: '11'
 
-    - name: Download and setup NDK
-      uses: android-actions/setup-ndk@v1
-      with:
-        ndk-version: '21.4.7075529'
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-30" "ndk;23.1.7779620"
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator
 
     - name: Build with Gradle
       run: ./gradlew assembleDebug
