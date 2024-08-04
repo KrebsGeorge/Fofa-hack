@@ -1,18 +1,36 @@
-name: Setup Android SDK
+name: Build and Upload APK
 
 on: [push]
 
 jobs:
-  setup:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v3
       with:
-        distribution: 'sdk'  # This parameter might be required
-        sdk-version: '30.0.3'
-        ndk-version: '23.1.7779620'
+        java-version: '11'
+
+    - name: Install Android SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+        unzip commandlinetools-linux-8512546_latest.zip -d $HOME/android-sdk
+        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-30" "ndk;23.1.7779620"
+        export ANDROID_HOME=$HOME/android-sdk
+        export PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator
+
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: apk
+        path: app/build/outputs/apk/debug/app-debug.apk
